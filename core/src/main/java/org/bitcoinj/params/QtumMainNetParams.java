@@ -8,12 +8,12 @@ import java.net.*;
 import static com.google.common.base.Preconditions.*;
 
 
-public class MainNetParams extends AbstractBitcoinNetParams {
+public class QtumMainNetParams extends AbstractBitcoinNetParams {
     public static final int MAINNET_MAJORITY_WINDOW = 1000;
     public static final int MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED = 950;
     public static final int MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 750;
 
-    public MainNetParams() {
+    public QtumMainNetParams() {
         super();
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
@@ -112,10 +112,10 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         };
     }
 
-    private static MainNetParams instance;
-    public static synchronized MainNetParams get() {
+    private static QtumMainNetParams instance;
+    public static synchronized QtumMainNetParams get() {
         if (instance == null) {
-            instance = new MainNetParams();
+            instance = new QtumMainNetParams();
         }
         return instance;
     }
