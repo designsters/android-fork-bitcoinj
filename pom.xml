@@ -9,8 +9,6 @@
 
   <modules>
     <module>core</module>
-    
-    <module>wallettemplate</module>
   </modules>
 
   <parent>
