@@ -226,6 +226,8 @@ public abstract class NetworkParameters {
             return UnitTestParams.get();
         } else if (id.equals(ID_REGTEST)) {
             return RegTestParams.get();
+        } else if (id.equals(ID_QTUM_MAINNET)) {
+            return QtumMainNetParams.get();
         } else {
             return null;
         }

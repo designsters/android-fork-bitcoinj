@@ -1,20 +1,3 @@
-/*
- * Copyright 2013 Google Inc.
- * Copyright 2015 Andreas Schildbach
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bitcoinj.params;
 
 import org.bitcoinj.core.*;
@@ -24,22 +7,20 @@ import java.net.*;
 
 import static com.google.common.base.Preconditions.*;
 
-/**
- * Parameters for the main production network on which people trade goods and services.
- */
-public class MainNetParams extends AbstractBitcoinNetParams {
+
+public class QtumMainNetParams extends AbstractBitcoinNetParams {
     public static final int MAINNET_MAJORITY_WINDOW = 1000;
     public static final int MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED = 950;
     public static final int MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 750;
 
-    public MainNetParams() {
+    public QtumMainNetParams() {
         super();
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
         dumpedPrivateKeyHeader = 128;
-        addressHeader = 0;
-        p2shHeader = 5;
+        addressHeader = 58;
+        p2shHeader = 50;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
         port = 8333;
         packetMagic = 0xf9beb4d9L;
@@ -53,7 +34,7 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         genesisBlock.setDifficultyTarget(0x1d00ffffL);
         genesisBlock.setTime(1231006505L);
         genesisBlock.setNonce(2083236893);
-        id = ID_MAINNET;
+        id = ID_QTUM_MAINNET;
         subsidyDecreaseBlockCount = 210000;
         spendableCoinbaseDepth = 100;
         String genesisHash = genesisBlock.getHashAsString();
@@ -131,10 +112,10 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         };
     }
 
-    private static MainNetParams instance;
-    public static synchronized MainNetParams get() {
+    private static QtumMainNetParams instance;
+    public static synchronized QtumMainNetParams get() {
         if (instance == null) {
-            instance = new MainNetParams();
+            instance = new QtumMainNetParams();
         }
         return instance;
     }
