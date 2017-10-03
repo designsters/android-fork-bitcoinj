@@ -1,4 +1,4 @@
-package org.qtum.wallet.utils;
+package org.bitcoinj.params;
 
 import org.bitcoinj.core.*;
 import org.bitcoinj.net.discovery.*;
