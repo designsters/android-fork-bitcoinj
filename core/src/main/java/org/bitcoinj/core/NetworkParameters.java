@@ -64,6 +64,9 @@ public abstract class NetworkParameters {
 
     /** The string returned by getId() for the Qtum mainnet. */
     public static final String ID_QTUM_TESTNET = "org.bitcoinj.qtum_testnet";
+	
+	/** The string returned by getId() for the WhiteCoin netparams. */
+    public static final String ID_WHITECOIN_NET = "org.bitcoinj.whitecoin_net";
 
     /** The string used by the payment protocol to represent the main net. */
     public static final String PAYMENT_PROTOCOL_ID_MAINNET = "main";
@@ -233,7 +236,9 @@ public abstract class NetworkParameters {
             return QtumMainNetParams.get();
         } else if (id.equals(ID_QTUM_TESTNET)) {
             return QtumTestNetParams.get();
-        } else {
+        } else if(id.equals(ID_WHITECOIN_NET)){
+			return WhiteCoinNetParams.get();
+		}else{
             return null;
         }
     }
