@@ -27,6 +27,7 @@ import org.bitcoinj.utils.ExchangeRate;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.WalletTransaction.Pool;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -77,8 +78,12 @@ public class Transaction extends ChildMessage {
     public static final Comparator<Transaction> SORT_TX_BY_HEIGHT = new Comparator<Transaction>() {
         @Override
         public int compare(final Transaction tx1, final Transaction tx2) {
-            final int height1 = tx1.getConfidence().getAppearedAtChainHeight();
-            final int height2 = tx2.getConfidence().getAppearedAtChainHeight();
+            final TransactionConfidence confidence1 = tx1.getConfidence();
+            final int height1 = confidence1.getConfidenceType() == ConfidenceType.BUILDING
+                    ? confidence1.getAppearedAtChainHeight() : Block.BLOCK_HEIGHT_UNKNOWN;
+            final TransactionConfidence confidence2 = tx2.getConfidence();
+            final int height2 = confidence2.getConfidenceType() == ConfidenceType.BUILDING
+                    ? confidence2.getAppearedAtChainHeight() : Block.BLOCK_HEIGHT_UNKNOWN;
             final int heightComparison = -(Ints.compare(height1, height2));
             //If height1==height2, compare by tx hash to make comparator consistent with equals
             return heightComparison != 0 ? heightComparison : tx1.getHash().compareTo(tx2.getHash());
@@ -101,9 +106,9 @@ public class Transaction extends ChildMessage {
 
     /**
      * If using this feePerKb, transactions will get confirmed within the next couple of blocks.
-     * This should be adjusted from time to time. Last adjustment: March 2016.
+     * This should be adjusted from time to time. Last adjustment: February 2017.
      */
-    public static final Coin DEFAULT_TX_FEE = Coin.valueOf(50000); // 0.5 mBTC
+    public static final Coin DEFAULT_TX_FEE = Coin.valueOf(100000); // 1 mBTC
 
     /**
      * Any standard (ie pay-to-address) output smaller than this value (in satoshis) will most likely be rejected by the network.
@@ -414,6 +419,8 @@ public class Transaction extends ChildMessage {
      */
     public Coin getFee() {
         Coin fee = Coin.ZERO;
+        if (inputs.isEmpty() || outputs.isEmpty()) // Incomplete transaction
+            return null;
         for (TransactionInput input : inputs) {
             if (input.getValue() == null)
                 return null;
@@ -655,10 +662,6 @@ public class Transaction extends ChildMessage {
         if (isOptInFullRBF()) {
             s.append("  opts into full replace-by-fee\n");
         }
-        if (inputs.size() == 0) {
-            s.append("  INCOMPLETE: No inputs!\n");
-            return s.toString();
-        }
         if (isCoinBase()) {
             String script;
             String script2;
@@ -673,43 +676,48 @@ public class Transaction extends ChildMessage {
                 .append(")  (scriptPubKey ").append(script2).append(")\n");
             return s.toString();
         }
-        for (TransactionInput in : inputs) {
-            s.append("     ");
-            s.append("in   ");
+        if (!inputs.isEmpty()) {
+            for (TransactionInput in : inputs) {
+                s.append("     ");
+                s.append("in   ");
 
-            try {
-                Script scriptSig = in.getScriptSig();
-                s.append(scriptSig);
-                if (in.getValue() != null)
-                    s.append(" ").append(in.getValue().toFriendlyString());
-                s.append("\n          ");
-                s.append("outpoint:");
-                final TransactionOutPoint outpoint = in.getOutpoint();
-                s.append(outpoint.toString());
-                final TransactionOutput connectedOutput = outpoint.getConnectedOutput();
-                if (connectedOutput != null) {
-                    Script scriptPubKey = connectedOutput.getScriptPubKey();
-                    if (scriptPubKey.isSentToAddress() || scriptPubKey.isPayToScriptHash()) {
-                        s.append(" hash160:");
-                        s.append(Utils.HEX.encode(scriptPubKey.getPubKeyHash()));
+                try {
+                    String scriptSigStr = in.getScriptSig().toString();
+                    s.append(!Strings.isNullOrEmpty(scriptSigStr) ? scriptSigStr : "<no scriptSig>");
+                    if (in.getValue() != null)
+                        s.append(" ").append(in.getValue().toFriendlyString());
+                    s.append("\n          ");
+                    s.append("outpoint:");
+                    final TransactionOutPoint outpoint = in.getOutpoint();
+                    s.append(outpoint.toString());
+                    final TransactionOutput connectedOutput = outpoint.getConnectedOutput();
+                    if (connectedOutput != null) {
+                        Script scriptPubKey = connectedOutput.getScriptPubKey();
+                        if (scriptPubKey.isSentToAddress() || scriptPubKey.isPayToScriptHash()) {
+                            s.append(" hash160:");
+                            s.append(Utils.HEX.encode(scriptPubKey.getPubKeyHash()));
+                        }
                     }
+                    if (in.hasSequence()) {
+                        s.append("\n          sequence:").append(Long.toHexString(in.getSequenceNumber()));
+                        if (in.isOptInFullRBF())
+                            s.append(", opts into full RBF");
+                    }
+                } catch (Exception e) {
+                    s.append("[exception: ").append(e.getMessage()).append("]");
                 }
-                if (in.hasSequence()) {
-                    s.append("\n          sequence:").append(Long.toHexString(in.getSequenceNumber()));
-                    if (in.isOptInFullRBF())
-                        s.append(", opts into full RBF");
-                }
-            } catch (Exception e) {
-                s.append("[exception: ").append(e.getMessage()).append("]");
+                s.append('\n');
             }
-            s.append('\n');
+        } else {
+            s.append("     ");
+            s.append("INCOMPLETE: No inputs!\n");
         }
         for (TransactionOutput out : outputs) {
             s.append("     ");
             s.append("out  ");
             try {
-                Script scriptPubKey = out.getScriptPubKey();
-                s.append(scriptPubKey);
+                String scriptPubKeyStr = out.getScriptPubKey().toString();
+                s.append(!Strings.isNullOrEmpty(scriptPubKeyStr) ? scriptPubKeyStr : "<no scriptPubKey>");
                 s.append(" ");
                 s.append(out.getValue().toFriendlyString());
                 if (!out.isAvailableForSpending()) {

@@ -34,7 +34,7 @@ public class WhiteCoinNetParams extends AbstractBitcoinNetParams {
         genesisBlock.setDifficultyTarget(0x1d00ffffL);
         genesisBlock.setTime(1231006505L);
         genesisBlock.setNonce(2083236893);
-        id = ID_QTUM_MAINNET;
+        id = ID_WHITECOIN_NET;
         subsidyDecreaseBlockCount = 210000;
         spendableCoinbaseDepth = 100;
         String genesisHash = genesisBlock.getHashAsString();
