@@ -19,8 +19,8 @@ public class WhiteCoinNetParams extends AbstractBitcoinNetParams {
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
         dumpedPrivateKeyHeader = 201;
-        addressHeader = 120;
-        p2shHeader = 110;
+        addressHeader = 73;
+        p2shHeader = 87;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
         port = 8333;
         packetMagic = 0xf9beb4d9L;
@@ -36,7 +36,7 @@ public class WhiteCoinNetParams extends AbstractBitcoinNetParams {
         genesisBlock.setNonce(2083236893);
         id = ID_WHITECOIN_NET;
         subsidyDecreaseBlockCount = 210000;
-        spendableCoinbaseDepth = 100;
+        spendableCoinbaseDepth = 500;
         String genesisHash = genesisBlock.getHashAsString();
         checkState(genesisHash.equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
                 genesisHash);
